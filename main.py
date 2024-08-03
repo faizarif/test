@@ -30,28 +30,30 @@ alpaca_prompt = """Below is an extraction from architecture diagram which shows 
 ### Class:
 {}"""
 
-EOS_TOKEN = tokenizer.eos_token
+# EOS_TOKEN = tokenizer.eos_token
 def formatting_prompts_func(examples):
-    instructions= 
+    instructions= "Below is the extraction from architecture diagram give class taking inputs like software_used,problem_statement,problem_solution_paths,benefits,cons,risks,dependencies,system_impacted"
     software_used= examples["software_used"]
     problem_statement=examples["problem_statement"]
-    problem_solution_paths=examples["problem_solution_path"]
+    problem_solution_paths=examples["problem_solution_paths"]
     benefits=examples["benefits"]
     cons=examples["cons"]
     risks=examples['risks']
     dependencies=examples['dependencies']
-    system_impacted=examples['system_impacted']
+    system_impacted=examples['systems_impacted']
     Class= examples["class"]
     texts = []
     for instructions,software_used,problem_statement,problem_solution_paths,benefits,cons,risks,dependencies,system_impacted,Class in zip(instructions,software_used,problem_statement,problem_solution_paths,benefits,cons,risks,dependencies,system_impacted,Class):
         # Must add EOS_TOKEN, otherwise your generation will go on forever!
-        text = alpaca_prompt.format(instructions,software_used,problem_statement,problem_solution_paths,benefits,cons,risks,dependencies,system_impacted,Class) + EOS_TOKEN
-        print(text)
-        print('-----------------')
+        text = alpaca_prompt.format(instructions,software_used,problem_statement,problem_solution_paths,benefits,cons,risks,dependencies,system_impacted,Class)
         texts.append(text)
     return { "text" : texts, }
 pass
 
 from datasets import load_dataset
-dataset = load_dataset("yahma/alpaca-cleaned", split = "train")
+from datasets import Dataset
+import pandas as pd
+df = pd.read_excel("dummy_text_multiclass.xlsx")
+dataset = Dataset.from_pandas(df)
+print(dataset)
 dataset = dataset.map(formatting_prompts_func, batched = True,)
